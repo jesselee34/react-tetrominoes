@@ -27,11 +27,4 @@ const Block = ({color, pieces}) => {
 	);
 }
 
-const mapper = (state) => {
-	return {
-		color: state.looseBlock.color,
-		pieces: state.looseBlock.pieces
-	};
-};
-
-export default connect(mapper)(Block);
+export default Block;

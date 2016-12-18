@@ -4,11 +4,11 @@ import Block from '../block';
 
 const Blocks = ({looseBlock, blocks}) => {
 	let styles;
-
+	console.log('rendered');
 	return (
 		<div>
 			{
-				looseBlock !== undefined ? <Block {...looseBlock} /> : ''
+				looseBlock !== undefined ? <Block {...looseBlock} /> : null
 			}
 			{
 				blocks.map(block => {

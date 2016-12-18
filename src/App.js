@@ -5,7 +5,7 @@ import getBoardDimentions from './modules/get-dimentions';
 import hitTest from './modules/hit-test';
 import Blocks from './components/blocks';
 
-import {createBlock} from './modules/create-block';
+import {createBlock, addBlock} from './modules/block';
 import {moveShape} from './modules/transform-shape';
 
 import {BLOCK_SIZE} from './constants';
@@ -23,7 +23,20 @@ const draw = (store, frame) => {
 				frame.looseBlock = createBlock(0,0);
 			} else {
 				let nextPos = moveShape(frame.looseBlock, 'DOWN');
-				if(!hitTest(nextPos, [{x: '*', y: frame.board.height}])){
+				let didHitBottom = hitTest( nextPos, [{x: '*', y: frame.board.height}] );
+
+				let didHitBlock = frame.blocks.length > 0 && frame.blocks.reduce((last, cur, i, blocks) => {
+					if(last) return last; // Optimize
+					let did = hitTest( nextPos, blocks[i].pieces);
+
+					return did;
+				}, false);
+				console.log(didHitBlock);
+				if( didHitBlock || didHitBottom ){
+					let block = frame.looseBlock;
+					frame.looseBlock = undefined;
+					frame.blocks = addBlock(block, frame.blocks);
+				} else {
 					frame.looseBlock = nextPos;
 				}
 			}
@@ -62,11 +75,7 @@ const App = ({frame}) => {
 		},
 
 		render () {
-			return (
-				<div>
-					<Blocks />
-				</div>
-			);
+			return <Blocks />
 		}
 	}
 };
