@@ -1,6 +1,6 @@
-# React Color Snake
+# React Tetrominoes
 
-Little Snake-like game built in React/Redux to demonstrate a functional architecture
+Little Tetris-like game built in React/Redux to demonstrate a functional architecture
 using almost exclusively pure functions.
 
 ![alt text](./screen-shot.png "screen shot")
