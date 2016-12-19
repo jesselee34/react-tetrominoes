@@ -4,7 +4,7 @@ import Block from '../block';
 
 const Blocks = ({looseBlock, blocks}) => {
 	let styles;
-	console.log('rendered');
+
 	return (
 		<div>
 			{

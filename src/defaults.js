@@ -1,5 +1,6 @@
 export default {
 	frame: 1,
+	direction: undefined,
 	pause: true,
 	board: {
 		width: 1,

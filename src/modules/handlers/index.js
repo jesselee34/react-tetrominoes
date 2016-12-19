@@ -1,16 +1,17 @@
-export const handleKeyboard = (event, frame) => {
+
+export const handleKeyDown = (event, frame) => {
     switch (event.key) {
         case "ArrowDown":
-			frame.snake.dir = 'D';
+			frame.direction = 'DOWN';
 			break;
         case "ArrowUp":
-            frame.snake.dir = 'U';
+            frame.direction = 'UP';
             break;
-        case "ArrowLeft":
-            frame.snake.dir = 'L';
+		case "ArrowLeft":
+            frame.direction = 'LEFT';
             break;
         case "ArrowRight":
-            frame.snake.dir = 'R';
+            frame.direction = 'RIGHT';
             break;
         case "Enter":
             frame.pause = !frame.pause;
@@ -21,4 +22,11 @@ export const handleKeyboard = (event, frame) => {
         default:
             return; // Quit when this doesn't handle the key event.
     }
+};
+
+export const handleKeyUp = (event, frame) => {
+	if(event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "ArrowLeft" || event.key === "ArrowRight"){
+		frame.direction = undefined;
+		console.log(frame.direction);
+	}
 };

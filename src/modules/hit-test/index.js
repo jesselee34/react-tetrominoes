@@ -5,7 +5,7 @@ export default (block, obsticles) => {
 		if(result) return true; // Optimize
 		obsticles.forEach(o => {
 			if(result) return true;
-			result = (p.x === o.x || o.x === '*') && (p.y === o.y || o.y === '*');
+			result = (p.x === o.x && p.y === o.y) || (o.x === '*' && p.y >= o.y ) || (p.y === '*' && (p.x >= o.x || p.x <= 0 ));
 		});
 	});
 

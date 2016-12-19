@@ -1,12 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import updateFrameNumber from './modules/update-frame-number';
-import {handleKeyboard} from './modules/handlers';
+import {handleKeyDown, handleKeyUp} from './modules/handlers';
 import getBoardDimentions from './modules/get-dimentions';
-import hitTest from './modules/hit-test';
 import Blocks from './components/blocks';
-
 import {createBlock, addBlock} from './modules/block';
 import {moveShape} from './modules/transform-shape';
+
+import {checkBottom, checkSides, combineCoords} from './helpers/check-for-hits';
 
 import {BLOCK_SIZE} from './constants';
 
@@ -17,29 +17,44 @@ const draw = (store, frame) => {
 	frame.frame = updateFrameNumber(state.frame);
 
 	// If the game isn't paused.
-	if(!frame.pause) {
-		if (frame.frame % 12 === 0) {
-			if(frame.looseBlock === undefined){
-				frame.looseBlock = createBlock(0,0);
-			} else {
-				let nextPos = moveShape(frame.looseBlock, 'DOWN');
-				let didHitBottom = hitTest( nextPos, [{x: '*', y: frame.board.height}] );
+	if(frame.pause) {
+		return;
+	}
 
-				let didHitBlock = frame.blocks.length > 0 && frame.blocks.reduce((last, cur, i, blocks) => {
-					if(last) return last; // Optimize
-					let did = hitTest( nextPos, blocks[i].pieces);
+	// If there is no looseBlock.
+	if(frame.looseBlock === undefined){
+		frame.looseBlock = createBlock(0,0);
+		store.dispatch({type: 'DRAW', frame});
+		return;
+	}
 
-					return did;
-				}, false);
-				console.log(didHitBlock);
-				if( didHitBlock || didHitBottom ){
-					let block = frame.looseBlock;
-					frame.looseBlock = undefined;
-					frame.blocks = addBlock(block, frame.blocks);
-				} else {
-					frame.looseBlock = nextPos;
-				}
-			}
+	let nextPos = {}, nextYPos = {};
+
+	if (frame.frame % 12 === 0) {
+		nextYPos = moveShape(frame.looseBlock, 'DOWN');
+
+		if( checkBottom(nextYPos, frame) ){
+			let block = frame.looseBlock;
+			frame.looseBlock = undefined;
+			frame.blocks = addBlock(block, frame.blocks);
+
+			store.dispatch({type: 'DRAW', frame});
+			return;
+		}
+
+		frame.looseBlock = nextYPos;
+	}
+
+	if (frame.frame % 3 === 0 && frame.direction !== undefined) {
+		nextPos = moveShape(frame.looseBlock, frame.direction);
+
+		// Combine last move and this one.
+		nextPos = combineCoords(nextPos, nextYPos);
+
+		if( checkBottom(nextPos, frame) || checkSides(nextPos, frame) ){
+			return; // Done.
+		} else {
+			frame.looseBlock = nextPos;
 		}
 	}
 
@@ -63,7 +78,10 @@ const App = ({frame}) => {
 			draw(store, frame);
 
 			// Bind keyboard events
-			window.addEventListener('keydown', (e) => handleKeyboard(e, frame), false);
+			window.addEventListener('keydown', (e) => handleKeyDown(e, frame), false);
+
+			// Bind keyboard events
+			window.addEventListener('keyup', (e) => handleKeyUp(e, frame), false);
 
 			// Bind window resize events
 			window.addEventListener('resize', (e) => frame.board = getBoardDimentions(BLOCK_SIZE), false);
@@ -71,6 +89,7 @@ const App = ({frame}) => {
 
 		componentWillUnmount () {
 			window.removeEventListener('keyup');
+			window.removeEventListener('keydown');
 			window.removeEventListener('resize');
 		},
 
